@@ -3,6 +3,9 @@ const gulp = require('gulp');
 
 gulp.task('serve', function(){
     initBrowserSync('src');
+    gulp.watch("src/**", function(evt){
+        browserSync.reload(evt.path);
+    });
 })
 
 function initBrowserSync(baseDir){
