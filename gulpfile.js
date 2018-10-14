@@ -14,6 +14,7 @@ function initBrowserSync(baseDir){
             baseDir:baseDir,
             routes:{
                 '/libs':"node_modules",
+                '/static':'resources'
             }
         },
         single:true,
