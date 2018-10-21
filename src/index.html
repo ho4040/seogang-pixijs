@@ -6,6 +6,7 @@
     <title>Seogang pixijs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="libs/jquery/dist/jquery.js"></script>
     <script src="libs/howler/dist/howler.js"></script>
     <script src="libs/pixi.js/dist/pixi.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase.js"></script>
@@ -20,9 +21,30 @@
         messagingSenderId: "692524715842"
     };
     firebase.initializeApp(config);
+    
     </script>    
+
 </head>
 <body>
+
+    <div id='gameArea'>
+
+    </div>
+
+    <div id="leaderBoard" style="padding:10px;color:white;text-shadow: 2px 2px black; z-index: 10;border-radius: 10px;background-color:silver;">
+        <h1>Leaderboard</h1>
+        <div id="rankContent"></div>
+        <button id="gameStartBtn">Start</button>
+    </div>
+
+    <div id="gameOver" style="padding:10px;color:white;text-shadow: 2px 2px black; z-index: 10;border-radius: 10px;background-color:silver;">
+        <h1>GameOver!!</h1>        
+        <div id="score"></div>        
+        <p>Save your record!!</p>        
+        <input type="text" id="playerNameInput">
+        <button id="scoreAddBtn">Submit!</button>
+    </div>
+
     <script src="main.js"></script>
 </body>
 

@@ -1,5 +1,9 @@
+var firestore = firebase.firestore()
+const settings = {timestampsInSnapshots: true};
+firestore.settings(settings);
+
 const app = new PIXI.Application({width:640, height:480});
-document.body.appendChild(app.view);
+document.getElementById("gameArea").appendChild(app.view);
 let loader = new PIXI.loaders.Loader()
 
 let gameObj = {}
@@ -57,61 +61,48 @@ loader.load(function(loader, res){
     var scoreText = new PIXI.Text('00', {fontFamily : 'Arial', fontSize: 24, fill : 0xffFFFF, align : 'center'});
     app.stage.addChild(scoreText)
     gameObj.scoreText = scoreText
-    var gameOverText = new PIXI.Text('GAMEOVER\nHIT SPACE', {fontFamily : 'Arial', fontSize: 40, fill : 0xFFFF00, align : 'center'});
-    gameObj.gameOverText = gameOverText
-    gameObj.gameOverText.x = 200
-    gameObj.gameOverText.y = 100
-    gameObj.gameOverText.visible = false;
-    app.stage.addChild(gameObj.gameOverText)
 
-    resetGame()
-
-    
-
-    app.ticker.add(function(delta){
-        if(!gameState.paused){
-
-            gameState.elapsedTime += delta
-
-            gameState.speed = gameState.elapsedTime/1000 + 1
-
-            scoreText.text = (gameState.elapsedTime/100).toFixed(2)
-
-            for(let meteor of gameObj.meteors){
-                meteor.x += meteor.dirVec.x * gameState.speed * delta
-                meteor.y += meteor.dirVec.y * gameState.speed * delta
-                let v1 = sub(gameObj.player, meteor)
-                let v2 = meteor.dirVec
-                let dist = len(v1);
-                meteor.rotation += Math.PI * 0.005
-                if(dot(v1,v2) < 0 && dist > 640)
-                    meteor.init()
-
-                if(dist < 20){ //Game Over
-                    gameState.paused = true;
-                    gameObj.gameOverText.visible = true;
-                    gameObj.crushSnd.play()
-                }
-            }
-
-            if( !!keyState['ArrowUp'] )
-                gameObj.player.y -= gameState.speed * delta * 2;
-            if( !!keyState['ArrowDown'] )
-                gameObj.player.y += gameState.speed * delta * 2;
-            if( !!keyState['ArrowLeft'] )
-                gameObj.player.x -= gameState.speed * delta * 2; 
-            if( !!keyState['ArrowRight'] )
-                gameObj.player.x += gameState.speed * delta * 2;
-        }
-    })
-    
 })
 
+function enterFrame(delta){
+    if(!gameState.paused){
+
+        gameState.elapsedTime += delta
+
+        gameState.speed = gameState.elapsedTime/1000 + 1
+
+        gameObj.scoreText.text = (gameState.elapsedTime/100).toFixed(2)
+
+        for(let meteor of gameObj.meteors){
+            meteor.x += meteor.dirVec.x * gameState.speed * delta
+            meteor.y += meteor.dirVec.y * gameState.speed * delta
+            let v1 = sub(gameObj.player, meteor)
+            let v2 = meteor.dirVec
+            let dist = len(v1);
+            meteor.rotation += Math.PI * 0.005
+            if(dot(v1,v2) < 0 && dist > 640)
+                meteor.init()
+
+            if(dist < 20){ //Game Over
+                gameState.paused = true;
+                gameObj.crushSnd.play()
+                gameOver()
+            }
+        }
+
+        if( !!keyState['ArrowUp'] )
+            gameObj.player.y -= gameState.speed * delta * 2;
+        if( !!keyState['ArrowDown'] )
+            gameObj.player.y += gameState.speed * delta * 2;
+        if( !!keyState['ArrowLeft'] )
+            gameObj.player.x -= gameState.speed * delta * 2; 
+        if( !!keyState['ArrowRight'] )
+            gameObj.player.x += gameState.speed * delta * 2;
+    }
+}
 
 
 var resetGame = function(){
-
-    
     
     gameObj.player.x = app.renderer.width / 2
     gameObj.player.y = app.renderer.height / 2
@@ -126,19 +117,59 @@ var resetGame = function(){
     gameState.paused = false;
     gameState.speed = 1;
 
-    gameObj.gameOverText.visible = false;
+    app.ticker.add(enterFrame)
 
 }
 
+function showLeaderBoard(){
+    $("#gameArea").hide()        
+    $("#gameOver").hide()
+    $("#leaderBoard").show()
+    firestore.collection("leaderboard").orderBy("score", "desc").limit(10).get().then(qss=>{
+        let leaderBoardContent = qss.docs.map(doc=>{
+            let data = doc.data()
+            return "<li>" + data['name'] + " : " + data['score'] + "</li>"
+        }).join("")
+        $("#rankContent").html(`<ol>${leaderBoardContent}</ol>`)
+    })
+}
+
+
+
+function gameOver(){
+    app.ticker.remove(enterFrame)
+    $("#score").html(gameState.elapsedTime / 100)
+    $("#gameArea").hide()
+    $("#leaderBoard").hide()
+    $("#gameOver").show()
+}
+
+
+
+$("#scoreAddBtn").on("click", function(){
+    let score  = gameState.elapsedTime / 100
+    let name = $("#playerNameInput").val()
+    // console.log(name);
+    firestore.collection("leaderboard").add({score:score, name:name}).then(()=>{
+        
+        showLeaderBoard();
+    })
+})
+
 let keyState = {};
+
+
+$("#gameStartBtn").on("click", function(){
+    $("#gameArea").show()    
+    resetGame();
+})
 
 document.addEventListener('keydown', function(evt){    
     keyState[evt.code] = true;
-    console.log(evt.code)
-    if(evt.code == 'Space'){
-        resetGame()
-    }
 })
+
 document.addEventListener('keyup', function(evt){
     keyState[evt.code] = false;
 })
+
+showLeaderBoard()
