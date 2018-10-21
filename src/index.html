@@ -7,7 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
     <script src="libs/howler/dist/howler.js"></script>
-    <script src="libs/pixi.js/dist/pixi.js"></script>    
+    <script src="libs/pixi.js/dist/pixi.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase.js"></script>
+    <script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyDMG3KijFdax5-FHaOQ4hZVRBXAi8KYO-c",
+        authDomain: "h5games-c799c.firebaseapp.com",
+        databaseURL: "https://h5games-c799c.firebaseio.com",
+        projectId: "h5games-c799c",
+        storageBucket: "h5games-c799c.appspot.com",
+        messagingSenderId: "692524715842"
+    };
+    firebase.initializeApp(config);
+    </script>    
 </head>
 <body>
     <script src="main.js"></script>
