@@ -23,8 +23,8 @@ gulp.task('build', function(){
     gulp.src("resources/**").pipe(gulp.dest('release/static'))
    
     ncp("node_modules/pixi.js", "release/libs/pixi.js", {clobber:true}, function(err){})
-    ncp("node_modules/howler", "release/libs/howler", {clobber:true}, function(err){})
     ncp("node_modules/jquery", "release/libs/jquery", {clobber:true}, function(err){})
+    ncp("node_modules/requirejs", "release/libs/requirejs", {clobber:true}, function(err){})
 })
 
 gulp.task('serve', function(){
